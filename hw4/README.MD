@@ -64,3 +64,166 @@
     Factory Method — для простих і гнучких рішень з одним типом об’єктів
 
     Abstract Factory — для складних систем із взаємопов’язаними об’єктами
+
+
+# Тема: Поведінкові патерни: Strategy та Observer.
+
+## 1. Патерн Strategy (Стратегія)
+
+### Приклад 1: Вибір способу оплати
+
+    class PaymentStrategy {
+    public:
+        virtual ~PaymentStrategy() = default;
+        virtual void pay(int amount) = 0;
+    };
+
+    class CreditCardPayment : public PaymentStrategy {
+    public:
+        void pay(int amount) override {
+            std::cout << "Оплачено " << amount << " грн через Кредитну Карту.\n";
+        }
+    };
+
+    class PayPalPayment : public PaymentStrategy {
+    public:
+        void pay(int amount) override {
+            std::cout << "Оплачено " << amount << " грн через PayPal.\n";
+        }
+    };
+
+    class Order {
+        std::unique_ptr<PaymentStrategy> strategy;
+    public:
+        void setPaymentMethod(std::unique_ptr<PaymentStrategy> newStrategy) {
+            strategy = std::move(newStrategy);
+        }
+
+        void processOrder(int amount) {
+            if (strategy) {
+                strategy->pay(amount);
+            } else {
+                std::cout << "Метод оплати не обрано!\n";
+            }
+        }
+    };
+
+### доцільність:
+
+    Ізоляція змін: Якщо банк змінить API для карток, ми правимо тільки клас CreditCardPayment. Клас Order залишається.
+
+    Вибір у Runtime: Користувач обирає метод оплати вже під час роботи програми, і ми просто підставляємо потрібний об'єкт.
+### Приклад 2: Поведінка персонажа у грі
+
+    class WeaponStrategy {
+    public:
+        virtual ~WeaponStrategy() = default;
+        virtual void useWeapon() = 0;
+    };
+
+
+    class Sword : public WeaponStrategy {
+    public:
+        void useWeapon() override { std::cout << "Удар мечем!\n"; }
+    };
+
+    class Bow : public WeaponStrategy {
+    public:
+        void useWeapon() override { std::cout << "Постріл з лука!\n"; }
+    };
+
+    class Character {
+        std::unique_ptr<WeaponStrategy> weapon;
+    public:
+        void equipWeapon(std::unique_ptr<WeaponStrategy> newWeapon) {
+            weapon = std::move(newWeapon);
+        }
+
+        void attack() {
+            if (weapon) weapon->useWeapon();
+            else std::cout << "Атака кулаками!\n";
+        }
+    };
+   
+### Доцільність:
+
+    Уникнення спадкування: Замість створення класів WarriorWithSword, WarriorWithBow, ми реалізовуємо одного Character, який міняє поведінку через композицію. Також можна додати нову зброю, не чіпаючи код персонажа. 
+
+### 2. Патерн Observer (Спостерігач)
+
+### Приклад 1: Погодна станція
+
+class IObserver {
+public:
+    virtual void update(float temp) = 0;
+};
+
+class WeatherStation {
+    std::vector<IObserver*> observers;
+    float temperature;
+public:
+    void attach(IObserver* obs) {
+        observers.push_back(obs);
+    }
+
+    void setTemperature(float temp) {
+        temperature = temp;
+        notify();
+    }
+
+    void notify() {
+        for (auto obs : observers) {
+            obs->update(temperature);
+        }
+    }
+};
+
+class PhoneDisplay : public IObserver {
+public:
+    void update(float temp) override {
+        std::cout << "Телефон показує: " << temp << "C\n";
+    }
+};
+
+class Logger : public IObserver {
+public:
+    void update(float temp) override {
+        std::cout << "Запис в лог: Температура змінилась на " << temp << "\n";
+    }
+};
+
+### Доцільність:
+
+Зв'язок один-до-багатьох: Станція не знає, хто саме її слухає. Ми можемо додати нові типи дисплеїв (наприклад, веб-віджет), не змінюючи код WeatherStation. Також дані оновлюються автоматично на всіх пристроях одразу після зміни температури.
+
+### Приклад 2: Кнопка та Дії
+
+    class Observer {
+    public:
+        virtual void onEvent() = 0;
+    };
+
+    class SoundEffect : public Observer {
+    public:
+        void onEvent() override { std::cout << "Відтворюю звук 'Клік'!\n"; }
+    };
+
+    class Logger : public Observer {
+    public:
+        void onEvent() override { std::cout << "Записую подію натискання в базу.\n"; }
+    };
+
+    class Button {
+        std::vector<Observer*> subscribers;
+    public:
+        void addSubscriber(Observer* s) { subscribers.push_back(s); }
+        
+        void click() {
+            std::cout << "Кнопка натиснута!\n";
+            for (auto s : subscribers) s->onEvent(); // Сповіщаємо всіх
+        }
+    };
+
+### Доцільність:
+
+    Автоматизація: Кнопці не треба знати, які саме класи на неї підписані. Вона просто сповіщає, а підписники реагують. Також можна легко додати або видалити підписника під час роботи програми.
