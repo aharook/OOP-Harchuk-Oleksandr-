@@ -1,109 +1,78 @@
-# Лекція No19
-## Тема: 
-    Composite і Decorator: концепції та компроміси.
+# Лекція №19: Composite і Decorator – концепції та компроміси
 
-# Патерн Composite (Компонувальник)
+## Суть патерну Composite
+    Патерн Composite дозволяє працювати з ієрархічними структурами так, ніби це єдиний об’єкт або колекція об’єктів. Для цього вводиться загальний інтерфейс Component, який реалізують два типи об’єктів:
+    - Leaf (листок) – окремий елемент без вкладених компонентів.
+    - Composite (композитний контейнер) – елемент, що може містити інші Component (як листки, так і інші композити).
 
-### Суть патерну Composite
+    Таким чином створюється деревоподібна структура. програма викликає метод на "корені", і він автоматично передає виконання всім своїм нащадкам, забезпечуючи роботу всієї ієрархії
+### Проблема, яку вирішує
+    Іноді потрібно опрацьовувати ієрархічні дані так, щоб і поодинокі об’єкти, і їхні групи (композиції) можна було використовувати однаково. Composite забезпечує єдиний інтерфейс для роботи з одиночними об’єктами і з їхніми колекціями, вирішуючи проблему складної обробки групових операцій.
+### Переваги
+    - Уніфікація – клієнтський код може однаково працювати з окремими об’єктами та з їх композиціями, не розрізняючи їхній тип.
 
-    Патерн Composite дозволяє працювати з ієрархічними структурами так, ніби вони є єдиною колекцією об’єктів.
-    Для цього вводиться спільний базовий інтерфейс Component, який реалізують:
+    - Гнучкість – просто додавати нові класи компонентів, оскільки всі вони реалізують єдиний інтерфейс Component.
 
-    - Leaf — окремий елемент (не має вкладених об’єктів);
+    - Спрощення клієнтського коду – клієнту не потрібно перевіряти чи розрізняти Leaf і Composite. Він взаємодіє лише з інтерфейсом базового компонента.
 
-    = Composite — контейнер, який може містити інші Component (Leaf або Composite).
+### Недоліки
+    - Обмеження типів – важче накласти жорсткі обмеження на склад підлеглих у Composite (наприклад, заборонити певні комбінації).
 
-    Таким чином створюється рекурсивна деревоподібна структура.
-    Клієнт викликає метод для кореневого елемента, а той автоматично делегує виконання всім дочірнім елементам.
+    - Порожні реалізації – якщо в інтерфейсі Component визначено багато методів, деякі класи Leaf можуть змушені мати «пусті» (незадіяні) реалізації методів, що можуть         збільшувати кодову базу.
+### Приклад 1: Робота з файлами різних типів
 
-### Проблема, яку вирішує: 
-    Коли потрібно працювати з ієрархічними структурами, де як окремі
-    елементи, так і групи елементів повинні мати однаковий інтерфейс.
-
-### Переваги: 
-    - Уніфікація: Клієнтський код працює з окремими об’єктами та композиціями однаково. 
-
-    - Гнучкість: Легко додавати нові типи компонентів. 
-
-    - Спрощення клієнтського коду: Клієнту не потрібно розрізняти Leaf та Composite.
-### Недоліки: 
-    - Може ускладнити обмеження типів компонентів у Composite. 
-
-    - Якщо Component має занадто багато методів, деякі Leaf можуть мати порожні реалізації.
-
-
-### Приклад 1: Робота з різними типами файлів 
-    class component{
+    class component {
     public:
-    virtual void nameprint() = 0;
-
-    virtual void Size() = 0;
-
-    virtual void show_struckt() = 0;
-
+        virtual void nameprint() = 0;
+        virtual void Size() = 0;
+        virtual void show_struckt() = 0;
     };
 
-    class leaf : public component{
-
+    class leaf : public component {
     public:
         std::string name;
         double size;
-
-        leaf(std::string name, double size): name(name), size(size) {}  
+        leaf(std::string name, double size): name(name), size(size) {}
 
         void nameprint() override {
-            std::cout << name <<std::endl;
+            std::cout << name << std::endl;
         }
-
-        void Size() override{
-            std:: cout << size <<std::endl;
+        void Size() override {
+            std::cout << size << std::endl;
         }
-
         void show_struckt() override {
             std::cout << name << " (" << size << " KB)" << std::endl;
         }
     };
 
-    class composite : public component{
+    class composite : public component {
     private:
-
-    std::vector<component*> components;
-
+        std::vector<component*> components;
     public:
+        std::string name;
+        double size;
+        composite(std::string name): name(name) {}
 
-    std::string name;
-    double size;
-
-    composite(std::string name): name(name) {}
-
-
-    void add(component* component){
-
-        components.push_back(component);
-    }
-
-    void nameprint() override {
-        std::cout << "Folder: " << name << std::endl;
-    }
-
-    void Size() override {
-        double total = 0;
-
-        for (auto c : components) {
-            c->Size();
+        void add(component* component) {
+            components.push_back(component);
         }
-    }
-    void show_struckt() override {
-        std::cout << name << std::endl;
-
-        for (auto c : components) {
-            c->show_struckt();
+        void nameprint() override {
+            std::cout << "Folder: " << name << std::endl;
         }
-    }
-
+        void Size() override {
+            double total = 0;
+            for (auto c : components) {
+                c->Size();
+            }
+        }
+        void show_struckt() override {
+            std::cout << name << std::endl;
+            for (auto c : components) {
+                c->show_struckt();
+            }
+        }
     };
-
-### Приклад 2: Gui
+### Приклад 2: GUI (графічний інтерфейс)
 
     class UIComponent {
     public:
@@ -114,10 +83,8 @@
     class Button : public UIComponent {
     private:
         std::string title;
-
     public:
         Button(const std::string& title) : title(title) {}
-
         void draw() override {
             std::cout << "Draw Button: " << title << std::endl;
         }
@@ -126,10 +93,8 @@
     class TextField : public UIComponent {
     private:
         std::string placeholder;
-
     public:
         TextField(const std::string& placeholder) : placeholder(placeholder) {}
-
         void draw() override {
             std::cout << "Draw TextField: " << placeholder << std::endl;
         }
@@ -139,87 +104,86 @@
     private:
         std::vector<UIComponent*> children;
         std::string name;
-
     public:
         Panel(const std::string& name) : name(name) {}
-
         void add(UIComponent* component) {
             children.push_back(component);
         }
-
         void draw() override {
             std::cout << "Draw Panel: " << name << std::endl;
-
             for (auto child : children) {
                 child->draw();
             }
         }
     };
-
-# Лекція No20
-## Тема: 
-    Adapter, Facade, Proxy: інтеграція й спрощення.
+# Лекція №20: Adapter, Facade, Proxy – інтеграція й спрощення
 
 ## 1. Патерн Adapter (Адаптер)
-### Сценарій 1: Інтеграція сторонньої бібліотеки логування
+
+### Сценарій 1: Інтеграція сторонньої бібліотеки логування.
+
     class ILogger {
-    public: 
-    virtual void Log(const std::string& msg) = 0;
+    public:
+        virtual void Log(const std::string& msg) = 0;
     };
 
     class FastLog {
-    public: 
-    void WriteFast(const std::string& text) { 
-        std::cout << "FastLog: " << text << "\n"; 
+    public:
+        void WriteFast(const std::string& text) {
+            std::cout << "FastLog: " << text << "\n";
         }
     };
 
     class FastLogAdapter : public ILogger {
+    private:
         FastLog logger;
     public:
         void Log(const std::string& msg) override {
-             logger.WriteFast(msg); 
-             } 
+            logger.WriteFast(msg);
+        }
     };
-
-### Сценарій 2: Адаптація старих даних
+### Сценарій 2: Адаптація старих даних.
 
     class JsonProvider {
-    public: 
-    virtual std::string GetJsonData() = 0;
+    public:
+        virtual std::string GetJsonData() = 0;
     };
-
 
     class XmlDatabase {
-    public: 
-    std::string GetXmlData(){ 
-        return "<data>123</data>"; }
+    public:
+        std::string GetXmlData() {
+            return "<data>123</data>";
+        }
     };
 
-
     class DataAdapter : public JsonProvider {
+    private:
         XmlDatabase db;
     public:
         std::string GetJsonData() override {
             std::string xml = db.GetXmlData();
-            return "{ \"data\": \"123\" }"; // Конвертація XML у JSON
+            // Конвертація XML у JSON (приклад, хардкод)
+            return "{ \"data\": \"123\" }";
+        }
+    };
+## 2. Патерн Facade (Фасад)
+
+    class Light {
+    public:
+        void Off() {
+            std::cout << "Світло вимкнено.\n";
         }
     };
 
-## 2. Патерн Facade (Фасад)
-### Сценарій 1: Керування "Розумним домом"
-    class Light { 
-    public: 
-        void Off() { std::cout << "Світло вимкнено.\n"; } 
-    };
-
-    class TV { 
-    public: 
-    void On() { std::cout << "ТВ увімкнено.\n"; } 
-
+    class TV {
+    public:
+        void On() {
+            std::cout << "ТВ увімкнено.\n";
+        }
     };
 
     class SmartHomeFacade {
+    private:
         Light light;
         TV tv;
     public:
@@ -229,19 +193,23 @@
             tv.On();
         }
     };
-### Сценарій 2: Оформлення замовлення в магазині
-    class Inventory { 
-        public: bool Check(int id) {
-            return true; } 
-            };
-    class Payment { 
-    Public: 
-    void Pay(int amount) { 
-        std::cout << "Оплачено.\n"; } 
-    };
+### Сценарій 2: Оформлення замовлення в магазині.
 
+    class Inventory {
+    public:
+        bool Check(int id) {
+            return true;
+        }
+    };
+    class Payment {
+    public:
+        void Pay(int amount) {
+            std::cout << "Оплачено.\n";
+        }
+    };
     // Фасад
     class OrderFacade {
+    private:
         Inventory inventory;
         Payment payment;
     public:
@@ -252,44 +220,52 @@
             }
         }
     };
-## 3. Патерн Proxy (Заступник)
-### Сценарій 1: Віртуальний проксі
-    class IVideo { 
-        public: virtual void Play() = 0; };
+### 3. Патерн Proxy (Заступник)
+
+    class IVideo {
+    public:
+        virtual void Play() = 0;
+    };
 
     class HeavyVideo : public IVideo {
     public:
-        HeavyVideo() { 
-        std::cout << "Завантаження 10GB відео в пам'ять...\n"; }
-        void Play() override { 
-        std::cout << "Відтворення відео.\n"; }
-    };
-
-
-    class VideoProxy : public IVideo {
-        HeavyVideo* video = nullptr;
-    public:
+        HeavyVideo() {
+            std::cout << "Завантаження 10GB відео в пам'ять...\n";
+        }
         void Play() override {
-            if (!video) video = new HeavyVideo(); 
-            video->Play();
+            std::cout << "Відтворення відео.\n";
         }
     };
 
-### Сценарій 2: Захисний проксі
+    class VideoProxy : public IVideo {
+    private:
+        HeavyVideo* video = nullptr;
+    public:
+        void Play() override {
+            if (!video) video = new HeavyVideo();
+            video->Play();
+        }
+    };
+### Сценарій 2: Захисний проксі.
 
-    class IDatabase { 
-        public: 
-        virtual void DeleteData() = 0; };
+    class IDatabase {
+    public:
+        virtual void DeleteData() = 0;
+    };
 
     class RealDatabase : public IDatabase {
-    public: void DeleteData() override { std::cout << "Дані видалено!\n"; }
+    public:
+        void DeleteData() override {
+            std::cout << "Дані видалено!\n";
+        }
     };
 
     class DatabaseProxy : public IDatabase {
+    private:
         RealDatabase db;
         std::string role;
     public:
-        DatabaseProxy(std::string userRole) : role(userRole) {}
+        DatabaseProxy(const std::string& userRole) : role(userRole) {}
         void DeleteData() override {
             if (role == "Admin") {
                 db.DeleteData();
@@ -298,19 +274,16 @@
             }
         }
     };
+## Як патерни допомагають
+    - Adapter (Адаптер, Інтеграція) – дозволяє використовувати існуючий або сторонній код без змін. Адаптер виступає «перекладачем» між клієнтом і сервісом з іншим інтерфейсом, вирішуючи проблему їх несумісності.
 
-### Як патерни допомагають:
+    - Facade (Фасад, Спрощення) – спрощує взаємодію з комплексною підсистемою. Фасад зменшує залежність клієнта від великої кількості класів, об’єднуючи складну функціональність за одним простим інтерфейсом.
 
-    Adapter (Інтеграція): Дозволяє повторно використовувати існуючий або сторонній код без його модифікації. Він розв'язує проблему несумісності, виступаючи "перекладачем" між клієнтом і сервісом.
+    - Proxy (Проксі, Контроль доступу) – дозволяє додавати системну логіку (наприклад, кешування, перевірку доступу, відкладене завантаження) «невидимо» для клієнта. Проксі реалізує той же інтерфейс, що й реальний об’єкт, тому клієнт взаємодіє з ним як з оригіналом.
 
-    Facade (Спрощення): Зменшує залежність клієнта від десятків класів підсистеми. Клієнтський код стає чистим, а складна логіка інкапсулюється всередині Фасаду.
+## Ключова відмінність між патернами
+    - Adapter – змінює інтерфейс. Адаптер переводить старий інтерфейс на новий, роблячи їх сумісними.
 
-    Proxy (Контроль доступу): Дозволяє додавати системну логіку (кешування, перевірку прав, ледаче завантаження) непомітно для клієнта, оскільки Проксі маскується під реальний об'єкт.
+    - Facade – створює новий інтерфейс (спрощений). Фасад об’єднує складний набір підсистем за одним простим інтерфейсом.
 
-### Ключова відмінність між патернами:
-
-    Adapter змінює інтерфейс (адаптує старий до нового).
-
-    Facade створює новий інтерфейс (спрощує групу складних інтерфейсів до одного простого).
-
-    Proxy залишає інтерфейс незмінним (повністю копіює інтерфейс оригіналу, щоб контролювати доступ до нього).
+    - Proxy – залишає інтерфейс незмінним. Проксі копіює інтерфейс реального об’єкта повністю, забезпечуючи додатковий контроль над його доступом.
