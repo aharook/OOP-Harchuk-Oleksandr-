@@ -1,5 +1,5 @@
 #include <iostream>
-#include <stdexcept> // Потрібно для роботи з помилками (винятками)
+#include <stdexcept>
 #include <gtest/gtest.h>
 
 class AgeCalculator {
@@ -53,7 +53,7 @@ TEST(AgeCalculatorFactTests, NegativeYear_ThrowsException) {
 }
 
 
-//Параметризовані тести (АналогTheory)
+//Параметризовані тести (Аналог Theory)
 
 
 // Структура для зберігання параметрів
@@ -62,8 +62,6 @@ struct AdultTestData {
     int currentYear;
     bool expectedIsAdult;
 };
-
-
 
 class AgeCalculatorTheoryTests : public ::testing::TestWithParam<AdultTestData> {};
 
