@@ -8,5 +8,6 @@ __pycache__/
 bin
 obj
 *.csproj
+build/
 
 build
