@@ -12,7 +12,6 @@ bool FileService::processFile(const std::string& filename) {
     return true; 
 }
 
-
 void FileService::uploadFile(const std::string& filename, const std::string& content) {
     if (_scanner.hasVirus(content)) {
         throw std::runtime_error("Virus detected! Upload aborted.");

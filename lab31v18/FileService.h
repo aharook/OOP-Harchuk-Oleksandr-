@@ -4,7 +4,6 @@
 #include <string>
 #include <stdexcept>
 
-// Інтерфейс для роботи з файлами
 class IFileStorage {
 public:
     virtual ~IFileStorage() = default;
