@@ -4,6 +4,8 @@
 
 Клас містить п'ять властивостей:
 
+``` cpp
+
     class User {
     private:
         int id;
@@ -23,10 +25,13 @@
         std::string getRegistrationDate() const { return registrationDate; }
     };
 
+```
+
 ## Серіалізація в JSON
 
 Вихідний формат JSON:
 
+``` JSON
     {
         "id": 1,
         "name": "Іван Петренко",
@@ -34,9 +39,9 @@
         "age": 28,
         "registrationDate": "2024-01-15"
     }
-
+```
 Метод toJSON():
-
+``` JSON
     std::string User::toJSON() const {
         std::ostringstream oss;
         oss << "{\n"
@@ -48,11 +53,11 @@
             << "}";
         return oss.str();
     }
-
+```
 ## Серіалізація в XML
 
 Вихідний формат XML:
-
+``` XML
     <user>
         <id>1</id>
         <name>Іван Петренко</name>
@@ -60,9 +65,9 @@
         <age>28</age>
         <registrationDate>2024-01-15</registrationDate>
     </user>
-
+```
 Метод toXML():
-
+``` XML
     std::string User::toXML() const {
         std::ostringstream oss;
         oss << "<user>\n"
@@ -74,7 +79,7 @@
             << "</user>";
         return oss.str();
     }
-
+```
 ## Порівняння форматів
 
 Розмір: JSON займає менше місця. XML потребує закриваючих тегів для кожного елемента.
