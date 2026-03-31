@@ -1,0 +1,22 @@
+[
+    {
+        "company": {
+            "address": "Kyiv",
+            "id": 101,
+            "title": "TechCorp"
+        },
+        "id": 1,
+        "salary": 2000.0,
+        "title": "C++ Developer"
+    },
+    {
+        "company": {
+            "address": "Lviv",
+            "id": 102,
+            "title": "SoftServe"
+        },
+        "id": 2,
+        "salary": 1500.0,
+        "title": "QA"
+    }
+]
